@@ -1,5 +1,6 @@
 package com.kobir.iptv.ui.player
 
+import android.view.ViewGroup
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -26,13 +27,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.ui.compose.AndroidViewPlayer
+import androidx.media3.ui.AspectRatioFrameLayout
+import androidx.media3.ui.PlayerView
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Text
@@ -49,9 +53,8 @@ fun PlayerScreen(
 ) {
     val uiState by viewModel.uiState
     var showControls by remember { mutableStateOf(true) }
-    var hideControlsJob by remember { mutableStateOf(false) }
 
-    val context = androidx.compose.ui.platform.LocalContext.current
+    val context = LocalContext.current
     val player = remember {
         ExoPlayer.Builder(context).build().apply {
             playWhenReady = true
@@ -76,7 +79,6 @@ fun PlayerScreen(
         player.prepare()
     }
 
-    // Auto-hide controls
     LaunchedEffect(showControls) {
         if (showControls) {
             delay(4000)
@@ -85,9 +87,7 @@ fun PlayerScreen(
     }
 
     DisposableEffect(Unit) {
-        onDispose {
-            player.release()
-        }
+        onDispose { player.release() }
     }
 
     Box(
@@ -95,13 +95,21 @@ fun PlayerScreen(
             .fillMaxSize()
             .background(Color.Black)
     ) {
-        AndroidViewPlayer(
-            player = player,
-            modifier = Modifier.fillMaxSize(),
-            useController = false
+        AndroidView(
+            factory = { ctx ->
+                PlayerView(ctx).apply {
+                    player = this@apply.player
+                    useController = false
+                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+                }
+            },
+            modifier = Modifier.fillMaxSize()
         )
 
-        // Top gradient overlay
         AnimatedVisibility(
             visible = showControls,
             enter = fadeIn(),
@@ -160,7 +168,6 @@ fun PlayerScreen(
             }
         }
 
-        // Bottom controls overlay
         AnimatedVisibility(
             visible = showControls,
             enter = fadeIn(),
@@ -249,7 +256,6 @@ fun PlayerScreen(
             }
         }
 
-        // Show channel info briefly on channel change
         if (!showControls) {
             Box(
                 modifier = Modifier
