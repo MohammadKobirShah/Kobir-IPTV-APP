@@ -1,6 +1,7 @@
 package com.kobir.iptv.ui.epg
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.kobir.iptv.data.model.Channel
 import com.kobir.iptv.data.repository.ChannelRepository
 import dagger.hilt.android.lifecycle.HiltViewModel

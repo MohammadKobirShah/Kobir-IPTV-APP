@@ -23,7 +23,7 @@ object DatabaseModule {
             context,
             AppDatabase::class.java,
             "kobir_iptv_db"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 
     @Provides

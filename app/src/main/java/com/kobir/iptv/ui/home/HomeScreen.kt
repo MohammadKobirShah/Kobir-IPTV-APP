@@ -59,6 +59,7 @@ fun HomeScreen(
     val categories by viewModel.categories
     val selectedCategory by viewModel.selectedCategory
     val favorites by viewModel.favoriteChannels
+    val filteredChannels by viewModel.filteredChannels
 
     Column(
         modifier = Modifier
@@ -89,10 +90,7 @@ fun HomeScreen(
 
         ChannelRow(
             title = if (selectedCategory != null) selectedCategory!! else "All Channels",
-            channels = if (selectedCategory != null) {
-                val filtered by viewModel.filteredChannels
-                filtered
-            } else channels,
+            channels = if (selectedCategory != null) filteredChannels else channels,
             onChannelClick = onChannelClick,
             onFavoriteClick = { viewModel.toggleFavorite(it) }
         )

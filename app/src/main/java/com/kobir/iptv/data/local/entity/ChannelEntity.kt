@@ -13,7 +13,7 @@ data class ChannelEntity(
     @ColumnInfo(name = "logo_url")
     val logoUrl: String? = null,
     val category: String? = null,
-    @ColumnInfo(name = "\"group\"")
+    @ColumnInfo(name = "channel_group")
     val group: String? = null,
     @ColumnInfo(name = "epg_channel_id")
     val epgChannelId: String? = null,
