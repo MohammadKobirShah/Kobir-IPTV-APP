@@ -1,0 +1,1 @@
+-keepclassmembers class com.kobir.iptv.data.local.entity.** { *; }

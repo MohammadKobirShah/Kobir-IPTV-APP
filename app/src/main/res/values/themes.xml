@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.KobirIPTV" parent="android:Theme.NoTitleBar">
+        <item name="android:windowBackground">@color/tv_background</item>
+        <item name="android:colorBackground">@color/tv_background</item>
+    </style>
+</resources>

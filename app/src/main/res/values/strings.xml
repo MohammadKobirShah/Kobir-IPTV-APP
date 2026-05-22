@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kobir IPTV</string>
+    <string name="tagline">Full Free Apps, No Premium Subscription</string>
+    <string name="splash_subtitle">Your Ultimate Free IPTV Experience</string>
+    <string name="enter_url">Enter M3U Playlist URL</string>
+    <string name="load_playlist">Load Playlist</string>
+    <string name="loading_channels">Loading channels…</string>
+    <string name="no_channels">No channels found</string>
+    <string name="search_channels">Search channels</string>
+    <string name="now_playing">Now Playing</string>
+    <string name="epg">TV Guide</string>
+    <string name="categories">Categories</string>
+    <string name="all_channels">All Channels</string>
+    <string name="favorites">Favorites</string>
+    <string name="settings">Settings</string>
+    <string name="retry">Retry</string>
+    <string name="error_loading">Failed to load playlist</string>
+</resources>
