@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,8 +39,8 @@ fun EPGScreen(
     onBack: () -> Unit,
     viewModel: EPGViewModel = hiltViewModel()
 ) {
-    val channels by viewModel.channels
-    val categories by viewModel.categories
+    val channels = viewModel.channels.collectAsState().value
+    val categories = viewModel.categories.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -77,7 +78,6 @@ fun EPGScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Time header row
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -101,7 +101,7 @@ fun EPGScreen(
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            items(channels) { channel ->
+            items(channels, key = { it.id }) { channel ->
                 EPGRow(channel = channel)
             }
         }
@@ -149,7 +149,6 @@ private fun EPGRow(channel: Channel) {
             )
         }
 
-        // Mock EPG program blocks (would be replaced with real EPG data)
         Row(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             modifier = Modifier.fillMaxWidth()

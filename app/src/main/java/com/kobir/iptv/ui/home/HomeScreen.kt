@@ -14,8 +14,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
@@ -34,16 +36,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.tv.foundation.lazy.TvLazyRow
-import androidx.tv.foundation.lazy.items
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
 import androidx.tv.material3.Text
 import coil.compose.AsyncImage
 import com.kobir.iptv.data.model.Channel
 import com.kobir.iptv.ui.theme.TVAccent
 import com.kobir.iptv.ui.theme.TVBackground
-import com.kobir.iptv.ui.theme.TVFocusGlowLarge
 import com.kobir.iptv.ui.theme.TVSecondary
 import com.kobir.iptv.ui.theme.TVSurface
 import com.kobir.iptv.ui.theme.TVSurfaceVariant
@@ -55,11 +52,11 @@ fun HomeScreen(
     onEpgClick: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    val channels by viewModel.allChannels
-    val categories by viewModel.categories
-    val selectedCategory by viewModel.selectedCategory
-    val favorites by viewModel.favoriteChannels
-    val filteredChannels by viewModel.filteredChannels
+    val channels = viewModel.allChannels.collectAsState().value
+    val categories = viewModel.categories.collectAsState().value
+    val selectedCategory = viewModel.selectedCategory.collectAsState().value
+    val favorites = viewModel.favoriteChannels.collectAsState().value
+    val filteredChannels = viewModel.filteredChannels.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -89,7 +86,7 @@ fun HomeScreen(
         }
 
         ChannelRow(
-            title = if (selectedCategory != null) selectedCategory!! else "All Channels",
+            title = if (selectedCategory != null) selectedCategory else "All Channels",
             channels = if (selectedCategory != null) filteredChannels else channels,
             onChannelClick = onChannelClick,
             onFavoriteClick = { viewModel.toggleFavorite(it) }
@@ -173,15 +170,16 @@ private fun CategoryChip(
     onClick: () -> Unit
 ) {
     var isFocused by remember { mutableStateOf(false) }
+    val bgColor = if (selected) TVAccent else TVSurfaceVariant
 
-    Card(
-        onClick = onClick,
-        colors = CardDefaults.cardColors(
-            containerColor = if (selected) TVAccent else TVSurfaceVariant
-        ),
-        scale = CardDefaults.scale(focusedScale = 1.08f),
+    Box(
         modifier = Modifier
+            .background(bgColor, shape = RoundedCornerShape(8.dp))
             .onFocusChanged { isFocused = it.isFocused }
+            .then(
+                if (isFocused) Modifier.alpha(0.8f) else Modifier
+            ),
+        contentAlignment = Alignment.Center
     ) {
         Text(
             text = label,
@@ -211,7 +209,7 @@ fun ChannelRow(
             modifier = Modifier.padding(horizontal = 48.dp, vertical = 12.dp)
         )
 
-        TvLazyRow(
+        LazyRow(
             contentPadding = PaddingValues(horizontal = 48.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -233,38 +231,22 @@ fun ChannelCard(
     onFavoriteClick: (() -> Unit)? = null
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val scale by animateFloatAsState(
+    val scale = animateFloatAsState(
         targetValue = if (isFocused) 1.1f else 1f,
         label = "cardScale"
-    )
-    val alpha by animateFloatAsState(
+    ).value
+    val alpha = animateFloatAsState(
         targetValue = if (isFocused) 1f else 0.85f,
         label = "cardAlpha"
-    )
+    ).value
 
-    Card(
-        onClick = onClick,
+    Box(
         modifier = Modifier
             .width(240.dp)
             .scale(scale)
             .alpha(alpha)
             .onFocusChanged { isFocused = it.isFocused }
-            .then(
-                if (isFocused) {
-                    Modifier.drawWithContent {
-                        drawContent()
-                        drawRect(
-                            brush = Brush.radialGradient(
-                                colors = listOf(TVFocusGlowLarge, Color.Transparent),
-                                radius = 0.8f
-                            )
-                        )
-                    }
-                } else Modifier
-            ),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = TVSurface),
-        scale = CardDefaults.scale(focusedScale = 1f)
+            .background(TVSurface, shape = RoundedCornerShape(16.dp))
     ) {
         Column {
             Box(
@@ -312,6 +294,22 @@ fun ChannelCard(
                     )
                 }
             }
+        }
+
+        if (isFocused) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(
+                        Brush.radialGradient(
+                            colors = listOf(
+                                Color(0x40FF6B35),
+                                Color.Transparent
+                            ),
+                            radius = 0.8f
+                        )
+                    )
+            )
         }
     }
 }

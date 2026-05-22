@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,7 +52,7 @@ fun PlayerScreen(
     onBack: () -> Unit,
     viewModel: PlayerViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState
+    val uiState = viewModel.uiState.collectAsState().value
     var showControls by remember { mutableStateOf(true) }
 
     val context = LocalContext.current
@@ -60,18 +61,19 @@ fun PlayerScreen(
             playWhenReady = true
         }
     }
+    val channel = uiState.channel
 
     LaunchedEffect(channelId) {
         viewModel.loadChannel(channelId)
     }
 
-    LaunchedEffect(uiState.channel?.url) {
-        val url = uiState.channel?.url ?: return@LaunchedEffect
+    LaunchedEffect(channel?.url) {
+        val url = channel?.url ?: return@LaunchedEffect
         val mediaItem = MediaItem.Builder()
             .setUri(url)
             .setMediaMetadata(
                 androidx.media3.common.MediaMetadata.Builder()
-                    .setTitle(uiState.channel?.name)
+                    .setTitle(channel?.name)
                     .build()
             )
             .build()
@@ -98,7 +100,7 @@ fun PlayerScreen(
         AndroidView(
             factory = { ctx ->
                 PlayerView(ctx).apply {
-                    player = player
+                    this.player = player
                     useController = false
                     resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIT
                     layoutParams = ViewGroup.LayoutParams(
@@ -149,16 +151,16 @@ fun PlayerScreen(
 
                     Column {
                         Text(
-                            text = uiState.channel?.name ?: "Loading...",
+                            text = channel?.name ?: "Loading...",
                             style = androidx.tv.material3.MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
-                        if (uiState.channel?.category != null) {
+                        if (channel?.category != null) {
                             Text(
-                                text = uiState.channel!!.category!!,
+                                text = channel!!.category!!,
                                 style = androidx.tv.material3.MaterialTheme.typography.bodyMedium,
                                 color = TVSecondary
                             )
@@ -265,7 +267,7 @@ fun PlayerScreen(
             ) {
                 Column {
                     Text(
-                        text = uiState.channel?.name ?: "",
+                        text = channel?.name ?: "",
                         style = androidx.tv.material3.MaterialTheme.typography.titleSmall,
                         color = Color.White
                     )

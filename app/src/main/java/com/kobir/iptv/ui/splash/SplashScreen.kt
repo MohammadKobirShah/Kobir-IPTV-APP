@@ -16,13 +16,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -48,13 +48,13 @@ fun SplashScreen(
     viewModel: SplashViewModel = hiltViewModel()
 ) {
     var startAnimation by remember { mutableStateOf(false) }
-    val alphaAnim by animateFloatAsState(
+    val alphaAnim = animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0f,
         animationSpec = tween(durationMillis = 1200),
         label = "splashAlpha"
-    )
+    ).value
 
-    val hasChannels by viewModel.hasChannels
+    val hasChannels = viewModel.hasChannels.collectAsState().value
 
     LaunchedEffect(Unit) {
         startAnimation = true
@@ -137,7 +137,7 @@ fun SetupScreen(
     onComplete: () -> Unit,
     viewModel: SetupViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState
+    val uiState = viewModel.uiState.collectAsState().value
 
     Box(
         modifier = Modifier
